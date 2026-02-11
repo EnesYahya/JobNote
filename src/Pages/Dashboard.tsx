@@ -43,6 +43,11 @@ const Dashboard: React.FC = () => {
   };
 
   const handleDelete = (id: string) => {
+    const confirmed = window.confirm(
+      'Are you sure you want to delete this job application?',
+    );
+    if (!confirmed) return;
+
     setApplications((prev) => prev.filter((job) => job.id !== id));
   };
 
@@ -68,10 +73,38 @@ const Dashboard: React.FC = () => {
     'All',
     'To Apply',
     'Applied',
-    'Interview',
+    'Video Interview',
+    'Assessments',
+    'Video + Assessments',
+    'HR Interview',
+    'Technical Interview',
     'Offer',
     'Rejected',
   ];
+
+  const sortedApplications = filteredApplications.slice().sort((a, b) => {
+    const getDaysUntilDue = (job: JobApplication) => {
+      if (!job.dueDate) return Number.POSITIVE_INFINITY;
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const due = new Date(job.dueDate);
+      if (Number.isNaN(due.getTime())) return Number.POSITIVE_INFINITY;
+
+      const diffMs = due.getTime() - today.getTime();
+      return Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+    };
+
+    const aDays = getDaysUntilDue(a);
+    const bDays = getDaysUntilDue(b);
+
+    const aIsSoon = aDays >= 0 && aDays <= 3;
+    const bIsSoon = bDays >= 0 && bDays <= 3;
+
+    if (aIsSoon && !bIsSoon) return -1;
+    if (!aIsSoon && bIsSoon) return 1;
+
+    return 0;
+  });
 
   return (
     <main className="min-h-screen bg-slate-50">
@@ -142,7 +175,7 @@ const Dashboard: React.FC = () => {
           </section>
         ) : (
           <section className="grid gap-4 md:grid-cols-2">
-            {filteredApplications.map((job) => (
+            {sortedApplications.map((job) => (
               <JobCard
                 key={job.id}
                 job={job}

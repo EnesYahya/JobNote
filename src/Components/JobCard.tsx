@@ -1,5 +1,12 @@
 import React, { useState } from 'react';
-import { Briefcase, Calendar, StickyNote, Trash2, Pencil } from 'lucide-react';
+import {
+  AlertTriangle,
+  Briefcase,
+  Calendar,
+  StickyNote,
+  Trash2,
+  Pencil,
+} from 'lucide-react';
 import { JobApplication, JobStatus } from '../Interfaces';
 
 interface JobCardProps {
@@ -11,9 +18,26 @@ interface JobCardProps {
 const statusColors: Record<JobStatus, string> = {
   'To Apply': 'bg-slate-100 text-slate-700 border-slate-200',
   Applied: 'bg-blue-100 text-blue-700 border-blue-200',
-  Interview: 'bg-yellow-100 text-yellow-700 border-yellow-200',
+  'Video Interview': 'bg-yellow-100 text-yellow-700 border-yellow-200',
+  Assessments: 'bg-indigo-100 text-indigo-700 border-indigo-200',
+  'Video + Assessments': 'bg-purple-100 text-purple-700 border-purple-200',
+  'HR Interview': 'bg-amber-100 text-amber-700 border-amber-200',
+  'Technical Interview': 'bg-orange-100 text-orange-700 border-orange-200',
   Offer: 'bg-emerald-100 text-emerald-700 border-emerald-200',
   Rejected: 'bg-red-100 text-red-700 border-red-200',
+};
+
+const isDueSoon = (dueDate?: string) => {
+  if (!dueDate) return false;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const due = new Date(dueDate);
+  if (Number.isNaN(due.getTime())) return false;
+
+  const diffMs = due.getTime() - today.getTime();
+  const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+
+  return diffDays >= 0 && diffDays <= 3;
 };
 
 const JobCard: React.FC<JobCardProps> = ({ job, onUpdate, onDelete }) => {
@@ -85,9 +109,21 @@ const JobCard: React.FC<JobCardProps> = ({ job, onUpdate, onDelete }) => {
           <span>Applied on {job.date || 'N/A'}</span>
         </div>
         <div className="inline-flex items-center gap-1.5 rounded-full bg-slate-50 px-2.5 py-1">
+          <Calendar className="h-3.5 w-3.5" />
+          <span>
+            {job.dueDate ? `Due by ${job.dueDate}` : 'No due date set'}
+          </span>
+        </div>
+        <div className="inline-flex items-center gap-1.5 rounded-full bg-slate-50 px-2.5 py-1">
           <StickyNote className="h-3.5 w-3.5" />
           <span>{job.note ? 'Has notes' : 'No notes yet'}</span>
         </div>
+        {isDueSoon(job.dueDate) && (
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-2.5 py-1 text-amber-700">
+            <AlertTriangle className="h-3.5 w-3.5" />
+            <span>Ending soon: {job.dueDate}</span>
+          </div>
+        )}
       </div>
 
       {editMode && (
@@ -104,7 +140,11 @@ const JobCard: React.FC<JobCardProps> = ({ job, onUpdate, onDelete }) => {
               >
                 <option value="To Apply">To Apply</option>
                 <option value="Applied">Applied</option>
-                <option value="Interview">Interview</option>
+                <option value="Video Interview">Video Interview</option>
+                <option value="Assessments">Assessments</option>
+                <option value="Video + Assessments">Video + Assessments</option>
+                <option value="HR Interview">HR Interview</option>
+                <option value="Technical Interview">Technical Interview</option>
                 <option value="Offer">Offer</option>
                 <option value="Rejected">Rejected</option>
               </select>

@@ -12,6 +12,7 @@ const createEmptyJob = () => ({
   company: '',
   position: '',
   date: new Date().toISOString().slice(0, 10),
+  dueDate: '',
   status: defaultStatus as JobStatus,
   note: '',
 });
@@ -135,6 +136,22 @@ const AddJobForm: React.FC<AddJobFormProps> = ({ onAdd }) => {
 
           <div className="space-y-1.5">
             <label className="block text-xs font-medium text-slate-700">
+              Due Date
+            </label>
+            <div className="relative">
+              <input
+                type="date"
+                name="dueDate"
+                value={form.dueDate || ''}
+                onChange={handleChange}
+                className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 pr-9 text-sm text-slate-900 shadow-sm outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-200"
+              />
+              <Calendar className="pointer-events-none absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            </div>
+          </div>
+
+          <div className="space-y-1.5 md:col-span-2">
+            <label className="block text-xs font-medium text-slate-700">
               Status
             </label>
             <select
@@ -145,7 +162,11 @@ const AddJobForm: React.FC<AddJobFormProps> = ({ onAdd }) => {
             >
               <option value="To Apply">To Apply</option>
               <option value="Applied">Applied</option>
-              <option value="Interview">Interview</option>
+              <option value="Video Interview">Video Interview</option>
+              <option value="Assessments">Assessments</option>
+              <option value="Video + Assessments">Video + Assessments</option>
+              <option value="HR Interview">HR Interview</option>
+              <option value="Technical Interview">Technical Interview</option>
               <option value="Offer">Offer</option>
               <option value="Rejected">Rejected</option>
             </select>
