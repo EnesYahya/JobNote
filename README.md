@@ -3,6 +3,8 @@
 JobNote is a small, focused web app for **tracking job applications**.  
 You can quickly add roles you’re interested in, record their status, set due dates (for application deadlines or tasks), and keep organized notes for each position in a clean dashboard.
 
+🔗 Live Demo: https://job-note.netlify.app
+
 ## Tech stack
 
 - **Frontend**: React + TypeScript  
