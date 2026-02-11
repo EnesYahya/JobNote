@@ -83,27 +83,19 @@ const Dashboard: React.FC = () => {
   ];
 
   const sortedApplications = filteredApplications.slice().sort((a, b) => {
-    const getDaysUntilDue = (job: JobApplication) => {
+    const getDueTime = (job: JobApplication) => {
       if (!job.dueDate) return Number.POSITIVE_INFINITY;
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
       const due = new Date(job.dueDate);
       if (Number.isNaN(due.getTime())) return Number.POSITIVE_INFINITY;
-
-      const diffMs = due.getTime() - today.getTime();
-      return Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+      return due.getTime();
     };
 
-    const aDays = getDaysUntilDue(a);
-    const bDays = getDaysUntilDue(b);
+    const aTime = getDueTime(a);
+    const bTime = getDueTime(b);
 
-    const aIsSoon = aDays >= 0 && aDays <= 3;
-    const bIsSoon = bDays >= 0 && bDays <= 3;
+    if (aTime === bTime) return 0;
 
-    if (aIsSoon && !bIsSoon) return -1;
-    if (!aIsSoon && bIsSoon) return 1;
-
-    return 0;
+    return aTime - bTime;
   });
 
   return (
