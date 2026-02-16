@@ -90,6 +90,23 @@ const Dashboard: React.FC = () => {
       return due.getTime();
     };
 
+    const isEnded = (job: JobApplication) => {
+      if (!job.dueDate) return false;
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const due = new Date(job.dueDate);
+      if (Number.isNaN(due.getTime())) return false;
+      return due.getTime() < today.getTime();
+    };
+
+    const aEnded = isEnded(a);
+    const bEnded = isEnded(b);
+
+    // Non-ended jobs should come before ended jobs
+    if (aEnded !== bEnded) {
+      return aEnded ? 1 : -1;
+    }
+
     const aTime = getDueTime(a);
     const bTime = getDueTime(b);
 

@@ -42,7 +42,7 @@ const getDueStatus = (dueDate?: string): DueStatus => {
   const diffMs = due.getTime() - today.getTime();
   const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
 
-  if (diffDays < 0) return 'ended';
+  if (diffDays <= 0) return 'ended';
   if (diffDays <= 3) return 'soon';
 
   return 'none';
