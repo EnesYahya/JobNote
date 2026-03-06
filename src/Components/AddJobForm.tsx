@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Plus, Calendar } from 'lucide-react';
-import { JobApplication, JobStatus } from '../Interfaces';
+import { JobApplication, JobStatus, ApplicationPlatform } from '../Interfaces';
 
 interface AddJobFormProps {
   onAdd: (job: JobApplication) => void;
@@ -11,9 +11,11 @@ const defaultStatus: JobStatus = 'To Apply';
 const createEmptyJob = () => ({
   company: '',
   position: '',
-  date: new Date().toISOString().slice(0, 10),
+  date: '',
   dueDate: '',
   status: defaultStatus as JobStatus,
+  platform: 'Other' as ApplicationPlatform,
+  url: '',
   note: '',
 });
 
@@ -44,12 +46,23 @@ const AddJobForm: React.FC<AddJobFormProps> = ({ onAdd }) => {
     e.preventDefault();
     if (!validate()) return;
 
+    const now = new Date().toISOString().slice(0, 10);
+    const isProcessingDate = !form.date;
+    const finalDate = form.date || now;
+
+    const { status, ...restForm } = form;
+
     const newJob: JobApplication = {
       id:
         typeof crypto !== 'undefined' && 'randomUUID' in crypto
           ? crypto.randomUUID()
           : Math.random().toString(36).slice(2),
-      ...form,
+      ...restForm,
+      date: finalDate,
+      isProcessingDate,
+      statusPipeline: [
+        { name: status, isCompleted: false, note: '', links: [] },
+      ],
     };
 
     onAdd(newJob);
@@ -120,7 +133,7 @@ const AddJobForm: React.FC<AddJobFormProps> = ({ onAdd }) => {
 
           <div className="space-y-1.5">
             <label className="block text-xs font-medium text-slate-700">
-              Application Date
+              {form.status === 'Applied' ? 'Application Date' : 'Log Date'} (Optional)
             </label>
             <div className="relative">
               <input
@@ -150,6 +163,39 @@ const AddJobForm: React.FC<AddJobFormProps> = ({ onAdd }) => {
             </div>
           </div>
 
+          <div className="space-y-1.5">
+            <label className="block text-xs font-medium text-slate-700">
+              Platform
+            </label>
+            <select
+              name="platform"
+              value={form.platform}
+              onChange={handleChange}
+              className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-200"
+            >
+              <option value="LinkedIn">LinkedIn</option>
+              <option value="Youthall">Youthall</option>
+              <option value="Kariyer.net">Kariyer.net</option>
+              <option value="Indeed">Indeed</option>
+              <option value="Company Website">Company Website</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="block text-xs font-medium text-slate-700">
+              Listing URL
+            </label>
+            <input
+              type="url"
+              name="url"
+              value={form.url}
+              onChange={handleChange}
+              placeholder="https://..."
+              className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-200"
+            />
+          </div>
+
           <div className="space-y-1.5 md:col-span-2">
             <label className="block text-xs font-medium text-slate-700">
               Status
@@ -162,11 +208,14 @@ const AddJobForm: React.FC<AddJobFormProps> = ({ onAdd }) => {
             >
               <option value="To Apply">To Apply</option>
               <option value="Applied">Applied</option>
+              <option value="English Test">English Test</option>
+              <option value="General Aptitude Test">General Aptitude Test</option>
+              <option value="Case Study">Case Study</option>
+              <option value="Group Case">Group Case</option>
               <option value="Video Interview">Video Interview</option>
-              <option value="Assessments">Assessments</option>
-              <option value="Video + Assessments">Video + Assessments</option>
               <option value="HR Interview">HR Interview</option>
               <option value="Technical Interview">Technical Interview</option>
+              <option value="Technical Test">Technical Test</option>
               <option value="Offer">Offer</option>
               <option value="Rejected">Rejected</option>
             </select>
