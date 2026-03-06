@@ -88,6 +88,20 @@ const JobCard: React.FC<JobCardProps> = ({ job, onUpdate, onDelete }) => {
     ? job.statusPipeline
     : [{ name: 'To Apply' as JobStatus, isCompleted: false, note: '', links: [] }];
 
+  const toggleStatusCompletion = (e: React.MouseEvent, index: number) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    let newPipeline = job.statusPipeline ? [...job.statusPipeline] : [];
+    if (newPipeline.length === 0) {
+      newPipeline = [{ name: 'To Apply' as JobStatus, isCompleted: true, note: '', links: [] }];
+    } else {
+      newPipeline[index] = { ...newPipeline[index], isCompleted: !newPipeline[index].isCompleted };
+    }
+
+    onUpdate({ ...job, statusPipeline: newPipeline });
+  };
+
   const handleDelete = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -166,9 +180,9 @@ const JobCard: React.FC<JobCardProps> = ({ job, onUpdate, onDelete }) => {
   }
 
   return (
-    <div className="group relative flex min-h-[160px] flex-col gap-4 rounded-3xl border border-slate-200 bg-white/95 p-5 shadow-lg backdrop-blur-md transition-all hover:-translate-y-1 hover:shadow-xl hover:border-indigo-200">
+    <div className="group relative flex min-w-0 min-h-[160px] flex-col gap-4 rounded-3xl border border-slate-200 bg-white/95 p-5 shadow-lg backdrop-blur-md transition-all hover:-translate-y-1 hover:shadow-xl hover:border-indigo-200">
 
-      <div className="flex items-start justify-between gap-3">
+      <div className="flex items-start justify-between gap-3 min-w-0">
         <div className="flex min-w-0 flex-1 items-start gap-4">
           <div className="flex flex-col items-center gap-1">
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white border border-slate-100 text-slate-600 shadow-sm group-hover:border-indigo-200 transition-colors overflow-hidden p-2">
@@ -176,23 +190,12 @@ const JobCard: React.FC<JobCardProps> = ({ job, onUpdate, onDelete }) => {
             </div>
           </div>
           <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2">
-              <Link to={`/job/${job.id}`} className="hover:underline flex-1 truncate">
+            <div className="flex min-w-0 items-center gap-2">
+              <Link to={`/job/${job.id}`} className="hover:underline flex-1 min-w-0 truncate">
                 <h3 className="truncate text-lg font-bold text-slate-900 group-hover:text-indigo-700 transition-colors">
                   {job.position}
                 </h3>
               </Link>
-              {job.url && (
-                <a
-                  href={job.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={handleLinkClick}
-                  className="text-slate-400 hover:text-indigo-600 transition-colors shrink-0"
-                >
-                  <ExternalLink className="h-4 w-4" />
-                </a>
-              )}
             </div>
             <p className="truncate text-sm font-medium text-slate-500">
               {job.company}
@@ -223,8 +226,11 @@ const JobCard: React.FC<JobCardProps> = ({ job, onUpdate, onDelete }) => {
       <div className="flex flex-wrap items-center gap-2 mt-1">
         {activeStatuses.map((status, index) => (
           <React.Fragment key={index}>
-            <span
-              className={`inline-flex items-center gap-1.5 rounded-xl border px-3 py-1 text-[11px] font-bold shadow-sm ${statusColors[status.name]}`}
+            <button
+              type="button"
+              onClick={(e) => toggleStatusCompletion(e, index)}
+              className={`inline-flex items-center gap-1.5 rounded-xl border px-3 py-1 text-[11px] font-bold shadow-sm cursor-pointer transition-opacity hover:opacity-80 active:scale-95 outline-none ${statusColors[status.name]}`}
+              title={`Mark ${status.name} as ${status.isCompleted ? 'waiting' : 'completed'}`}
             >
               {status.isCompleted ? (
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
@@ -232,7 +238,7 @@ const JobCard: React.FC<JobCardProps> = ({ job, onUpdate, onDelete }) => {
                 <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
               )}
               {status.name}
-            </span>
+            </button>
           </React.Fragment>
         ))}
         {/* Waiting / Completed indicator overall */}
@@ -261,12 +267,26 @@ const JobCard: React.FC<JobCardProps> = ({ job, onUpdate, onDelete }) => {
           )}
         </div>
 
-        <Link
-          to={`/job/${job.id}`}
-          className="inline-flex items-center justify-center rounded-xl bg-slate-900 px-4 py-2 text-xs font-semibold text-white shadow-md transition-all hover:bg-indigo-600 hover:shadow-lg active:scale-95 ml-auto"
-        >
-          View Details
-        </Link>
+        <div className="flex items-center gap-2 ml-auto">
+          {job.url && (
+            <a
+              href={job.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={handleLinkClick}
+              className="inline-flex items-center justify-center rounded-xl bg-slate-50 p-2 text-slate-500 shadow-sm transition-all hover:bg-indigo-50 hover:text-indigo-600 active:scale-95 border border-slate-200 hover:border-indigo-200"
+              title="Go to site"
+            >
+              <ExternalLink className="h-4 w-4" />
+            </a>
+          )}
+          <Link
+            to={`/job/${job.id}`}
+            className="inline-flex items-center justify-center rounded-xl bg-slate-900 px-4 py-2 text-xs font-semibold text-white shadow-md transition-all hover:bg-indigo-600 hover:shadow-lg active:scale-95"
+          >
+            View Details
+          </Link>
+        </div>
       </div>
 
       {dueStatus === 'soon' && (
