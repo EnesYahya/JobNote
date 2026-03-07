@@ -23,11 +23,12 @@ export const JobProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
                 // Migration logic for older items
                 if (typeof job.status === 'string') {
                     const statusName = job.status as JobStatus;
+                    const { status, ...restJob } = job;
                     return {
-                        ...job,
+                        ...restJob,
                         platform: job.platform || 'Other',
                         url: job.url || '',
-                        statusPipeline: [
+                        statusPipeline: job.statusPipeline || [
                             { name: statusName, isCompleted: false, note: '', links: [] }
                         ]
                     };
